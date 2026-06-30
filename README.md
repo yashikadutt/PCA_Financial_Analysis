@@ -4,113 +4,89 @@
 ![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
 ![Matplotlib](https://img.shields.io/badge/Matplotlib-11557c?style=for-the-badge&logo=python&logoColor=white)
-![Finance](https://img.shields.io/badge/Quantitative%20Finance-00599C?style=for-the-badge&logo=chartdotjs&logoColor=white)
+
+Five financial indicators across 8 Indian cities — income, expenses, savings rate, debt-to-income, and a financial stress index — turn out to be almost the same number wearing different units. This project shows that, and quantifies it.
 
 ---
 
-## 📌 Overview
+## The question
 
-A Python implementation of **Principal Component Analysis** on financial indicators across **8 major Indian cities** (2023–24 data).
+Income, expenses, debt-to-income, and financial stress are usually treated as separate things to track. But are they actually independent, or is a city that earns more also spending more, borrowing more, and stressed more — just one underlying pattern measured five different ways?
 
-Reduces 5 correlated financial variables — income, expenses, savings rate, debt-to-income, and a composite financial stress index — into 2 principal components that together explain **99.45% of total variance**, then validates the manual eigen-decomposition against scikit-learn's PCA implementation.
+## What the data says
 
-Originally developed as a supervised summer project (BSP-156, USBAS, GGSIPU) — manual PCA was first implemented in Excel and validated in MATLAB. This repository reimplements the full pipeline in Python.
+Computing the correlation matrix first answers this directly: Income and Expenses move together at **r = 0.97**. Debt-to-Income and Financial Stress Index move together at **r = 0.98**. Almost nothing here is independent.
 
----
+That's confirmed by the PCA result — one single axis (PC1) absorbs **75.75%** of all variance across the 5 variables, and a second axis picks up nearly everything else (**23.69%**). Two numbers per city replace five, losing almost no information.
 
-## ⚙️ Methods Implemented
-
-| Step | Description |
-|---|---|
-| **Standardization** | Z-score normalization (ddof=1, matches Excel's `STDEV.S`) so variables on different scales (₹ vs %) are comparable |
-| **Covariance Matrix** | Measures co-movement between all variable pairs post-standardization |
-| **Eigen Decomposition** | Extracts eigenvalues (variance captured) and eigenvectors (component directions) via `np.linalg.eigh` |
-| **Variance Explained** | Eigenvalues converted to % and ranked to identify how many components are needed |
-| **PCA Scores** | Projects each city onto the new principal component space |
-| **sklearn Validation** | Cross-checks manual results against `sklearn.decomposition.PCA` |
-
----
-
-## 📊 Results
-
-### Variance Explained
-
-| Component | Eigenvalue | % Variance | Cumulative % |
-|---|---|---|---|
-| PC1 | 3.7877 | 75.75% | 75.75% |
-| PC2 | 1.1846 | 23.69% | 99.45% |
-| PC3–PC5 | 0.0277 | 0.55% | 100.00% |
-
-> PC1 and PC2 together capture nearly all the variance in the original 5 variables — a textbook PCA result confirming strong correlation structure in the dataset.
-
-### Component Interpretation
-
-**PC1 — "Financial Pressure" axis**
-Driven by Income (−0.40), Expenses (−0.46), Debt-to-Income (−0.51), and Financial Stress Index (−0.49), opposed by Savings Rate (+0.36). Cities scoring negative on PC1 have higher cost-of-living and debt burden; cities scoring positive have comparatively stronger savings relative to spending.
-
-| City | PC1 Score | Interpretation |
+| Component | Variance Explained | Cumulative |
 |---|---|---|
-| Mumbai | −3.69 | Highest cost & debt burden |
-| Bengaluru | −0.99 | Above-average pressure |
-| Ahmedabad | +2.40 | Lowest cost & debt burden |
-| Kolkata | +2.16 | Strong relative savings |
+| PC1 | 75.75% | 75.75% |
+| PC2 | 23.69% | 99.45% |
+| PC3, PC4, PC5 | 0.55% combined | 100.00% |
 
-**PC2 — Savings/Income axis**
-Driven primarily by Savings Rate (−0.66) and Income (−0.57). Bengaluru is the standout outlier (PC2 = −2.23), driven by the combination of the highest savings rate (24%) and high income in the dataset.
+## What PC1 actually is
 
----
+It's not an abstract math construct — its loadings spell out a recognisable axis:
 
-## 📈 Visualizations
+```
+Income            -0.40
+Expenses          -0.46
+Debt-to-Income    -0.51
+Financial Stress  -0.49
+Savings Rate      +0.36
+```
 
-### Scree Plot — Variance Explained per Component
+Four variables pulling one way, Savings Rate pulling the other. PC1 is a **cost-of-living-and-debt-burden score**, derived rather than assumed:
+
+| City | PC1 Score | Reading |
+|---|---|---|
+| Mumbai | −3.69 | Highest income, highest debt burden, lowest relative savings |
+| Bengaluru | −0.99 | Moderately high pressure |
+| Kolkata | +2.16 | Low cost, comparatively strong savings |
+| Ahmedabad | +2.40 | Lowest cost, lowest debt burden |
+
+PC2 picks up what PC1 misses: Bengaluru is the one outlier (PC2 = −2.23) — high income *and* the highest savings rate in the dataset (24%), a profile distinct from every other city.
+
+## Pipeline
+
+`pca_analysis.py` implements PCA from the ground up, then checks it against `scikit-learn`:
+
+1. Standardise (z-score, ddof=1 — matches Excel's `STDEV.S`, used to keep this consistent with the original manual version of this project)
+2. Covariance matrix of the standardised data
+3. Eigendecomposition via `np.linalg.eigh`
+4. Sort eigenvalues/eigenvectors descending
+5. Project standardised data onto the sorted eigenvectors → PCA scores
+6. Cross-check every number against `sklearn.decomposition.PCA`
+
+No step is hidden behind a library call until step 6 — the manual implementation is the actual analysis; sklearn is there to prove it's correct, not to replace it.
+
+## Visuals
 
 ![Scree Plot](scree_plot.png)
-
-### Biplot — City Positions & Variable Loadings (PC1 vs PC2)
+*Two components, not five — the scree plot is the visual version of the correlation argument above.*
 
 ![Biplot](biplot.png)
-
-### Loadings Heatmap — Full Component Matrix
+*Arrows show how each variable pulls; dots show where each city actually lands. Mumbai and Ahmedabad sit at opposite ends of the same axis.*
 
 ![Loadings Heatmap](loadings_heatmap.png)
+*Full loading matrix — confirms PC3 onward carry almost no signal (near-zero coefficients).*
 
----
-
-## 🚀 How to Run
+## Run it
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Run
 python pca_analysis.py
 ```
 
----
+## On the dataset
 
-## 🗂️ Project Structure
+8 cities, sourced from Statista (city-wise average salaries) and CNBC (EMI-to-income ratios by metro). City-level financial data at this granularity isn't published consistently across more cities in India — extending this to 15-20 cities would mean estimating rather than sourcing most of the additional numbers, which would weaken rather than strengthen the analysis. 8 honest data points beat 20 invented ones.
 
-```
-PCA_Financial_Analysis/
-├── pca_analysis.py
-├── requirements.txt
-├── scree_plot.png
-├── biplot.png
-├── loadings_heatmap.png
-└── README.md
-```
+This project began as a manual Excel + MATLAB analysis (BSP-156, supervised by Prof. Rashmi Bhardwaj, USBAS, GGSIPU). This repository is the from-scratch Python rebuild of that same methodology.
 
 ---
 
-## 🔑 Key Concepts
+**Yashika Dutt** 
 
-**Principal Component Analysis** — A dimensionality reduction technique that transforms correlated variables into a smaller set of uncorrelated components, ranked by how much variance they explain.
-
-**Eigenvalues & Eigenvectors** — Eigenvectors define the direction of each new component; eigenvalues quantify how much of the data's total variance lies along that direction.
-
-**Standardization** — Required before PCA whenever variables are on different scales (here, rupees vs percentages), since PCA is variance-based and would otherwise be dominated by whichever variable has the largest raw magnitude.
-
-**Limitation** — The dataset covers 8 major Indian cities, sized to balance genuinely sourced, city-level financial data (Statista, CNBC) against the limited public availability of consistent metrics at this granularity. A larger sample would strengthen statistical generalization, but at the cost of relying on estimated rather than sourced figures for additional cities.
-
----
 
