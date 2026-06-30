@@ -117,7 +117,7 @@ python pca_analysis.py
 
 ## 🗂️ Project Structure
 
-\```
+```
 PCA_Financial_Analysis/
 ├── pca_analysis.py        # Main analysis script
 ├── README.md              # Project documentation
@@ -125,7 +125,7 @@ PCA_Financial_Analysis/
 ├── scree_plot.png         # Variance explained per component
 ├── biplot.png             # City positions & variable loadings
 └── loadings_heatmap.png   # Full loading matrix
-\```
+```
 
 ---
 ## ⚠️ Limitation
