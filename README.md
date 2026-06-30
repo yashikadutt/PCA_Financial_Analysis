@@ -62,14 +62,17 @@ Driven primarily by Savings Rate (−0.66) and Income (−0.57). Bengaluru is th
 
 ## 📈 Visualizations
 
-**Scree Plot** — variance explained per principal component
-`plot1_scree.png`
+### Scree Plot — Variance Explained per Component
 
-**Biplot** — city positions and variable loading directions on PC1 vs PC2
-`plot2_biplot.png`
+![Scree Plot](scree_plot.png)
 
-**Loadings Heatmap** — full loading matrix across all 5 components
-`plot3_loadings_heatmap.png`
+### Biplot — City Positions & Variable Loadings (PC1 vs PC2)
+
+![Biplot](biplot.png)
+
+### Loadings Heatmap — Full Component Matrix
+
+![Loadings Heatmap](loadings_heatmap.png)
 
 ---
 
@@ -88,12 +91,12 @@ python pca_analysis.py
 ## 🗂️ Project Structure
 
 ```
-PCA-Financial-Analysis/
+PCA_Financial_Analysis/
 ├── pca_analysis.py
 ├── requirements.txt
-├── plot1_scree.png
-├── plot2_biplot.png
-├── plot3_loadings_heatmap.png
+├── scree_plot.png
+├── biplot.png
+├── loadings_heatmap.png
 └── README.md
 ```
 
