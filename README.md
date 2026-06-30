@@ -117,7 +117,7 @@ python pca_analysis.py
 
 ## 🗂️ Project Structure
 
-```
+\```
 PCA_Financial_Analysis/
 ├── pca_analysis.py        # Main analysis script
 ├── README.md              # Project documentation
@@ -125,14 +125,12 @@ PCA_Financial_Analysis/
 ├── scree_plot.png         # Variance explained per component
 ├── biplot.png             # City positions & variable loadings
 └── loadings_heatmap.png   # Full loading matrix
----
+\```
 
+---
 ## ⚠️ Limitation
 
 The dataset covers 8 major Indian cities, sized to balance genuinely sourced, city-level financial data (Statista, CNBC) against the limited public availability of consistent metrics at this granularity. A larger sample would strengthen statistical generalization, but at the cost of relying on estimated rather than sourced figures for additional cities.
-
----
-
 
 ---
 
